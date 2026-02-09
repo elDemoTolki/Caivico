@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   console.log('Gallery grid:', !!galleryGrid);
 
-  // Menu toggle
+  // Menu toggle - Abrir/Cerrar
   if(hamburger){
     hamburger.addEventListener('click', function(){
       const expanded = this.getAttribute('aria-expanded') === 'true';
@@ -21,6 +21,28 @@ document.addEventListener('DOMContentLoaded', function(){
       nav && nav.classList.toggle('open');
     });
   }
+
+  // Cerrar menú al hacer clic en un enlace del menú
+  if(nav){
+    const navLinks = nav.querySelectorAll('a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(){
+        nav.classList.remove('open');
+        hamburger && hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  // Cerrar menú al hacer clic fuera
+  document.addEventListener('click', function(e){
+    const isClickInsideNav = nav && nav.contains(e.target);
+    const isClickOnHamburger = hamburger && hamburger.contains(e.target);
+    
+    if(!isClickInsideNav && !isClickOnHamburger && nav && nav.classList.contains('open')){
+      nav.classList.remove('open');
+      hamburger && hamburger.setAttribute('aria-expanded', 'false');
+    }
+  });
 
   // Sticky header shadow
   window.addEventListener('scroll', function(){
