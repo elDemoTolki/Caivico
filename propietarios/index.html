@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal de Propietarios - Condominio Río Caivico</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    /* Estilos específicos para la página de propietarios */
+    .propietarios-header {
+      background: linear-gradient(135deg, rgba(43, 107, 58, 0.08) 0%, rgba(74, 138, 82, 0.06) 100%);
+      padding: 3rem 0;
+      margin-top: 2rem;
+      border-bottom: 2px solid var(--green-200);
+    }
+
+    .propietarios-header h1 {
+      color: var(--green-700);
+      font-size: 2rem;
+      margin: 0 0 0.5rem;
+    }
+
+    .propietarios-header p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .propietarios-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .propietarios-card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(43, 107, 58, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .propietarios-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(43, 107, 58, 0.12);
+    }
+
+    .propietarios-card h3 {
+      color: var(--green-700);
+      margin: 0 0 0.75rem;
+      font-size: 1.25rem;
+    }
+
+    .propietarios-card p {
+      color: var(--text);
+      margin: 0 0 1rem;
+      line-height: 1.6;
+    }
+
+    .docs-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0;
+    }
+
+    .docs-list li {
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: var(--text);
+    }
+
+    .docs-list li::before {
+      content: "📄";
+      position: absolute;
+      left: 0;
+    }
+
+    .docs-list a {
+      color: var(--green-700);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .docs-list a:hover {
+      color: var(--green-900);
+      text-decoration: underline;
+    }
+
+    .info-note {
+      background: var(--green-200);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      color: var(--text);
+      border-left: 4px solid var(--green-700);
+    }
+
+    .contact-details {
+      margin-top: 1rem;
+    }
+
+    .contact-item {
+      display: flex;
+      gap: 0.75rem;
+      margin: 0.75rem 0;
+      align-items: flex-start;
+    }
+
+    .contact-label {
+      font-weight: 600;
+      color: var(--green-700);
+      min-width: 100px;
+    }
+
+    .propietarios-section {
+      padding: 3rem 0;
+    }
+
+    .propietarios-section h2 {
+      color: var(--green-700);
+      margin: 0 0 1.5rem;
+      font-size: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .propietarios-header {
+        padding: 2rem 0;
+        margin-top: 1rem;
+      }
+
+      .propietarios-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .propietarios-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a href="/" class="logo" aria-label="Condominio Río Caivico">
+        <img src="../caivico.jpg" alt="Logotipo Condominio Río Caivico" class="site-logo">
+      </a>
+
+      <nav class="nav" role="navigation">
+        <ul class="nav-list">
+          <li><a href="/#condominio">Condominio</a></li>
+          <li><a href="/#galeria">Galería</a></li>
+          <li><a href="/#informacion">Información</a></li>
+          <li><a href="/#contacto">Contacto</a></li>
+          <li class="nav-propietarios"><a href="/propietarios/">Propietarios</a></li>
+        </ul>
+      </nav>
+
+      <button class="hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ENCABEZADO DE SECCIÓN -->
+    <section class="propietarios-header">
+      <div class="container">
+        <h1>Portal de Propietarios</h1>
+        <p>Acceso exclusivo para propietarios del Condominio Río Caivico</p>
+      </div>
+    </section>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="container">
+      <!-- BIENVENIDA / AVISO -->
+      <section class="propietarios-section">
+        <div class="propietarios-cards">
+          <article class="propietarios-card">
+            <h3>Bienvenida</h3>
+            <p>Esta sección es de <strong>acceso restringido</strong> y está destinada exclusivamente a los propietarios del Condominio Río Caivico.</p>
+            <p>Aquí encontrarás información administrativa, documentación oficial y comunicados relevantes para la gestión y convivencia de nuestra comunidad.</p>
+            <div class="info-note">
+              <strong>Nota:</strong> Este contenido es de carácter informativo y administrativo. Te recomendamos revisar regularmente esta sección para mantenerte actualizado.
+            </div>
+          </article>
+
+          <!-- DOCUMENTOS DEL CONDOMINIO -->
+          <article class="propietarios-card">
+            <h3>Documentos del Condominio</h3>
+            <p>Accede a toda la documentación oficial y normativas del condominio:</p>
+            <ul class="docs-list">
+              <li><a href="docs/">Reglamento interno del condominio (PDF)</a></li>
+              <li><a href="docs/">Protocolos de convivencia y uso de espacios comunes (PDF)</a></li>
+              <li><a href="docs/">Actas de reuniones de copropietarios (PDF)</a></li>
+              <li><a href="docs/">Comunicados oficiales de la administración (PDF)</a></li>
+              <li><a href="docs/">Planos generales y normativas del condominio (PDF)</a></li>
+              <li><a href="docs/">Calendario de mantenciones y trabajos programados (PDF)</a></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- ORGANIZACIÓN DE DOCUMENTOS -->
+      <section class="propietarios-section">
+        <h2>Organización de Documentos</h2>
+        <article class="propietarios-card">
+          <p>Todos nuestros documentos se publican en formato <strong>PDF</strong> para garantizar la compatibilidad y seguridad.</p>
+          <p>Los archivos están organizados por <strong>fecha de publicación o categoría temática</strong>, lo que facilita su búsqueda y consulta.</p>
+          <div class="info-note">
+            <strong>Estructura de nombrado recomendada:</strong>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+              <li><code>reglamento-interno.pdf</code></li>
+              <li><code>acta-2026-03-15.pdf</code></li>
+              <li><code>comunicado-2026-04.pdf</code></li>
+            </ul>
+          </div>
+        </article>
+      </section>
+
+      <!-- CONTACTO ADMINISTRACIÓN -->
+      <section class="propietarios-section">
+        <h2>Contacto Administración</h2>
+        <article class="propietarios-card">
+          <p>Para consultas, sugerencias o reportes, contáctate con nuestra administración:</p>
+          <div class="contact-details">
+            <div class="contact-item">
+              <span class="contact-label">Correo:</span>
+              <span>administracion@caivico.cl</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-label">Teléfono:</span>
+              <span>+56 9 XXXX XXXX</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-label">Horario:</span>
+              <span>Lunes a viernes, 9:00 - 17:00 hrs</span>
+            </div>
+          </div>
+          <div class="info-note">
+            Los tiempos de respuesta pueden variar según la complejidad de tu consulta. Te responderemos lo antes posible.
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div style="display: flex; align-items: center;">
+        <img src="../caivico.jpg" alt="Logotipo Condominio Río Caivico" class="footer-logo">
+        <p style="margin: 0;">© 2026 Condominio Río Caivico. Todos los derechos reservados.</p>
+      </div>
+      <div style="text-align: right; font-size: 0.9rem; opacity: 0.9;">
+        <p style="margin: 0;">Sitio oficial del condominio</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
