@@ -119,11 +119,21 @@
     </section>
   </main>
 
-  <!-- Gallery Modal/Lightbox -->
-  <div id="galleryModal" class="gallery-modal" role="dialog" aria-hidden="true" aria-label="Galería ampliada">
-    <div class="modal-content">
-      <button class="modal-close" aria-label="Cerrar galería">×</button>
-      <img id="modalImage" src="" alt="Imagen ampliada" class="modal-image">
+  <!-- Accessible Gallery Modal/Lightbox -->
+  <div id="lightbox" class="gallery-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="lightboxTitle">
+    <div class="modal-panel" role="document">
+      <div class="modal-header">
+        <h2 id="lightboxTitle">Vista de imagen</h2>
+        <button class="modal-close" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <button class="nav prev" aria-label="Imagen anterior">◀</button>
+        <img id="lightboxImage" src="" alt="Imagen de la galería" class="modal-image">
+        <button class="nav next" aria-label="Imagen siguiente">▶</button>
+      </div>
+      <div class="modal-footer">
+        <div class="counter" aria-live="polite"></div>
+      </div>
     </div>
   </div>
 

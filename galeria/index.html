@@ -91,14 +91,15 @@
         loading = true;
         sentinel.textContent = 'Cargando...';
         const batch = all.slice(loaded, loaded + BATCH);
-        batch.forEach(p => {
+        batch.forEach((p, i) => {
           const item = document.createElement('div');
           item.className = 'gallery-item';
           const img = document.createElement('img');
           // gallery.json stores relative paths like "assets/..."; ensure absolute root path when on /galeria/
           img.src = p.startsWith('/') ? p : ('/' + p.replace(/^\/+/, ''));
           img.loading = 'lazy';
-          img.alt = 'Imagen galería';
+          img.alt = 'Imagen de galería ' + (loaded + i + 1);
+          img.tabIndex = 0;
           item.appendChild(img);
           grid.appendChild(item);
         });
@@ -121,5 +122,23 @@
       obs.observe(sentinel);
     });
   </script>
+
+  <!-- Accessible Gallery Modal/Lightbox (duplicate for this page) -->
+  <div id="lightbox" class="gallery-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="lightboxTitle">
+    <div class="modal-panel" role="document">
+      <div class="modal-header">
+        <h2 id="lightboxTitle">Vista de imagen</h2>
+        <button class="modal-close" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <button class="nav prev" aria-label="Imagen anterior">◀</button>
+        <img id="lightboxImage" src="" alt="Imagen de la galería" class="modal-image">
+        <button class="nav next" aria-label="Imagen siguiente">▶</button>
+      </div>
+      <div class="modal-footer">
+        <div class="counter" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

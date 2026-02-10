@@ -141,9 +141,11 @@ document.addEventListener('DOMContentLoaded', function(){
         pick.forEach((p, i) => {
           const img = document.createElement('img');
           img.src = p;
-          img.alt = `Galería ${i+1}`;
+          img.alt = `Imagen de galería ${i+1}`;
           img.loading = i === 0 ? 'eager' : 'lazy';
-          img.onload = () => attachZoomHandler(img);
+          img.tabIndex = 0; // make thumbnails keyboard-focusable
+          img.setAttribute('data-src-index', i);
+          img.addEventListener('load', () => attachZoomHandler(img));
           galleryGrid.appendChild(img);
         });
 
@@ -164,21 +166,152 @@ document.addEventListener('DOMContentLoaded', function(){
     })();
   }
 
-  // === MODAL ===
-  function closeModal(){
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+  // === LIGHTBOX / ACCESSIBLE MODAL ===
+  // Handles open/close, keyboard navigation, focus trap and delegation
+  let galleryIndexCache = null;
+  async function fetchGalleryIndex(){
+    if(galleryIndexCache) return galleryIndexCache;
+    try{
+      const res = await fetch('/assets/gallery.json');
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      galleryIndexCache = Array.isArray(data.images) ? data.images : [];
+      return galleryIndexCache;
+    }catch(err){
+      console.warn('Could not load gallery index for lightbox', err);
+      return [];
+    }
   }
 
-  closeBtn && closeBtn.addEventListener('click', closeModal);
-  modal && modal.addEventListener('click', function(e){
-    if(e.target === this) closeModal();
+  const lightbox = document.getElementById('lightbox');
+  const lbImage = document.getElementById('lightboxImage');
+  const lbClose = lightbox && lightbox.querySelector('.modal-close');
+  const lbPrev = lightbox && lightbox.querySelector('.nav.prev');
+  const lbNext = lightbox && lightbox.querySelector('.nav.next');
+  const lbCounter = lightbox && lightbox.querySelector('.counter');
+  let lbOpen = false;
+  let lbCurrent = 0;
+  let lbImages = [];
+  let lastTrigger = null;
+
+  function updateCounter(){
+    if(!lbCounter) return;
+    lbCounter.textContent = (lbImages.length>0) ? `${lbCurrent+1} / ${lbImages.length}` : '';
+  }
+
+  function focusableIn(node){
+    return [...node.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+      .filter(el => !el.hasAttribute('disabled'));
+  }
+
+  function trapTabKey(e){
+    if(!lbOpen) return;
+    const focusables = focusableIn(lightbox);
+    if(focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if(e.key === 'Tab'){
+      if(e.shiftKey){
+        if(document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if(document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  }
+
+  function showImage(idx){
+    if(!lbImage) return;
+    if(lbImages.length === 0) return;
+    lbCurrent = ((idx % lbImages.length) + lbImages.length) % lbImages.length; // wrap
+    const src = lbImages[lbCurrent];
+    lbImage.src = src;
+    lbImage.alt = `Imagen de galería ${lbCurrent+1}`;
+    updateCounter();
+  }
+
+  async function openLightbox(idx, trigger){
+    lbImages = await fetchGalleryIndex();
+    if(lbImages.length === 0) return;
+    lastTrigger = trigger || null;
+    showImage(idx);
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('no-scroll');
+    lbOpen = true;
+    // focus first control
+    setTimeout(()=>{
+      if(lbClose) lbClose.focus();
+    }, 60);
+    document.addEventListener('keydown', onDocumentKey);
+    document.addEventListener('keydown', trapTabKey);
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('no-scroll');
+    lbOpen = false;
+    document.removeEventListener('keydown', onDocumentKey);
+    document.removeEventListener('keydown', trapTabKey);
+    // restore focus to trigger
+    if(lastTrigger && typeof lastTrigger.focus === 'function') lastTrigger.focus();
+  }
+
+  function onDocumentKey(e){
+    if(!lbOpen) return;
+    if(e.key === 'Escape'){
+      e.preventDefault();
+      closeLightbox();
+      return;
+    }
+    if(e.key === 'ArrowLeft'){
+      e.preventDefault();
+      showImage(lbCurrent - 1);
+      return;
+    }
+    if(e.key === 'ArrowRight'){
+      e.preventDefault();
+      showImage(lbCurrent + 1);
+      return;
+    }
+  }
+
+  // Button handlers
+  lbClose && lbClose.addEventListener('click', closeLightbox);
+  lbPrev && lbPrev.addEventListener('click', () => showImage(lbCurrent - 1));
+  lbNext && lbNext.addEventListener('click', () => showImage(lbCurrent + 1));
+  // backdrop click closes
+  lightbox && lightbox.addEventListener('click', function(e){ if(e.target === this) closeLightbox(); });
+
+  // Delegated activation: clicks and keyboard (Enter/Space) on thumbnails
+  document.addEventListener('click', async function(e){
+    const img = e.target.closest && e.target.closest('.gallery-grid img, #gallery-full-grid img');
+    if(!img) return;
+    e.preventDefault();
+    // determine index in gallery.json
+    const imgs = await fetchGalleryIndex();
+    const src = img.getAttribute('src') || img.getAttribute('data-src') || img.dataset.src || img.currentSrc;
+    const idx = imgs.indexOf(src);
+    openLightbox(idx >= 0 ? idx : 0, img);
   });
 
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false'){
-      closeModal();
+  // Keyboard activation on thumbnails
+  document.addEventListener('keydown', async function(e){
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const el = document.activeElement;
+    if(!el) return;
+    if(el.matches && el.matches('.gallery-grid img, #gallery-full-grid img')){
+      e.preventDefault();
+      const imgs = await fetchGalleryIndex();
+      const src = el.getAttribute('src') || el.getAttribute('data-src') || el.dataset.src || el.currentSrc;
+      const idx = imgs.indexOf(src);
+      openLightbox(idx >= 0 ? idx : 0, el);
     }
   });
 

@@ -96,10 +96,17 @@ body{
 /* Gallery Modal/Lightbox */
 .gallery-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease}
 .gallery-modal.open{opacity:1;visibility:visible}
-.modal-content{position:relative;max-width:90vw;max-height:90vh;display:flex;align-items:center;justify-content:center}
-.modal-image{max-width:100%;max-height:90vh;object-fit:contain;border-radius:8px;animation:zoomIn .35s ease}
-.modal-close{position:absolute;top:-40px;right:0;background:none;border:none;color:#fff;font-size:36px;cursor:pointer;padding:0 8px;opacity:.8;transition:opacity .2s}
-.modal-close:hover{opacity:1}
+.modal-panel{position:relative;max-width:94vw;max-height:94vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:transparent}
+.modal-body{display:flex;align-items:center;justify-content:center;gap:1rem}
+.modal-image{max-width:100%;max-height:82vh;object-fit:contain;border-radius:8px;animation:zoomIn .35s ease}
+.modal-header{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1100px;padding:0 1rem}
+.modal-header h2{margin:0;color:#fff;font-size:1.1rem}
+.modal-footer{margin-top:0.5rem;color:#fff}
+.modal-close{background:none;border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:20px;padding:8px 10px;border-radius:8px;cursor:pointer}
+.modal-close:hover{opacity:0.95}
+.nav{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);color:#fff;border-radius:8px;padding:8px 10px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.nav:focus,.modal-close:focus{outline:3px solid rgba(74,138,82,0.24);outline-offset:3px}
+.counter{color:#e6f2e8;font-size:0.95rem}
 @keyframes zoomIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 
 /* Responsive */
@@ -125,4 +132,11 @@ body{
   .hero-content h1{font-size:2rem}
   .gallery-grid{grid-template-columns:1fr}
   .modal-close{top:-32px;font-size:28px}
+
+  /* Prevent background scroll when modal open */
+  .no-scroll{overflow:hidden;height:100%}
+
+  /* Ensure focus styles are visible when using keyboard */
+  :focus{outline: none}
+  :focus-visible{outline: 3px solid rgba(74,138,82,0.28);outline-offset:3px}
 }
