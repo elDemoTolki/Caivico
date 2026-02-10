@@ -73,6 +73,13 @@ body{
 .card h3{margin:0;font-size:1rem}
 .card p{margin:0;color:var(--muted);font-size:0.95rem}
 
+/* Reglamento Sections */
+.reglamento-section{margin-bottom:2rem}
+.reglamento-section h3{color:var(--green-700);font-size:1.2rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem}
+.reglamento-list{list-style:none;padding:0;margin:0;color:var(--text)}
+.reglamento-list li{padding:0.65rem 0 0.65rem 1.8rem;position:relative;line-height:1.5;font-size:0.95rem}
+.reglamento-list li:before{content:'•';position:absolute;left:0.5rem;color:var(--green-500);font-weight:bold}
+
 /* Contact */
 .contact-section{background:var(--green-200);padding:3.25rem 0}
 .contact-inner{display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start}
