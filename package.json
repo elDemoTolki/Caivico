@@ -1,0 +1,9 @@
+{
+  "name": "caivico-site",
+  "version": "1.0.0",
+  "description": "Sitio estático Condominio Río Caivico",
+  "type": "module",
+  "scripts": {
+    "generate:gallery": "node scripts/generate-gallery-index.mjs"
+  }
+}

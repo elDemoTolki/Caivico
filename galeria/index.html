@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Galería - Condominio Río Caivico</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .galeria-header{background:linear-gradient(135deg, rgba(43,107,58,0.08), rgba(74,138,82,0.06));padding:2.5rem 0;border-bottom:2px solid var(--green-200)}
+    .galeria-header h1{color:var(--green-700);margin:0;font-size:2rem}
+    #gallery-full-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin:2rem 0}
+    .gallery-item{border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 6px 18px rgba(43,107,58,0.06);aspect-ratio:4/3}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;display:block}
+    .gallery-sentinel{height:120px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.95rem}
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a href="/" class="logo" aria-label="Condominio Río Caivico">
+        <img src="../caivico.jpg" alt="Logotipo" class="site-logo">
+      </a>
+
+      <nav class="nav" role="navigation">
+        <ul class="nav-list">
+          <li><a href="/">Condominio</a></li>
+          <li><a href="/galeria/">Galería</a></li>
+          <li><a href="/">Información</a></li>
+          <li><a href="/">Contacto</a></li>
+          <li class="nav-propietarios"><a href="/propietarios/">Propietarios</a></li>
+        </ul>
+      </nav>
+
+      <button class="hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="galeria-header">
+      <div class="container">
+        <h1>Galería Completa</h1>
+        <p>Explora todas las imágenes del Condominio Río Caivico</p>
+      </div>
+    </section>
+
+    <section class="container">
+      <div id="gallery-full-grid" aria-live="polite"></div>
+      <div class="gallery-sentinel" aria-live="polite">Cargando...</div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left"><img src="../caivico.jpg" class="footer-logo" alt="Logo"><span>© Condominio Río Caivico</span></div>
+      <div class="footer-right"><small>© 2026 Condominio Río Caivico</small></div>
+    </div>
+  </footer>
+
+  <script src="../script.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function(){
+      const grid = document.getElementById('gallery-full-grid');
+      const sentinel = document.querySelector('.gallery-sentinel');
+      const BATCH = 12;
+      let all = [];
+      let loaded = 0;
+      let loading = false;
+
+      try{
+        const res = await fetch('/assets/gallery.json');
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        all = Array.isArray(data.images) ? data.images : [];
+      }catch(err){
+        console.error('Error fetching gallery.json', err);
+        sentinel.textContent = 'Error al cargar la galería';
+        return;
+      }
+
+      if(all.length === 0){
+        sentinel.textContent = 'No hay imágenes disponibles';
+        return;
+      }
+
+      function loadNext(){
+        if(loading || loaded >= all.length) return;
+        loading = true;
+        sentinel.textContent = 'Cargando...';
+        const batch = all.slice(loaded, loaded + BATCH);
+        batch.forEach(p => {
+          const item = document.createElement('div');
+          item.className = 'gallery-item';
+          const img = document.createElement('img');
+          // gallery.json stores relative paths like "assets/..."; ensure absolute root path when on /galeria/
+          img.src = p.startsWith('/') ? p : ('/' + p.replace(/^\/+/, ''));
+          img.loading = 'lazy';
+          img.alt = 'Imagen galería';
+          item.appendChild(img);
+          grid.appendChild(item);
+        });
+        loaded += batch.length;
+        loading = false;
+        if(loaded >= all.length){
+          sentinel.style.display = 'none';
+          obs && obs.disconnect();
+        } else {
+          sentinel.textContent = '';
+        }
+      }
+
+      // initial
+      loadNext();
+
+      const obs = new IntersectionObserver(entries => {
+        if(entries[0].isIntersecting) loadNext();
+      }, { rootMargin: '400px' });
+      obs.observe(sentinel);
+    });
+  </script>
+</body>
+</html>

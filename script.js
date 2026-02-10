@@ -64,104 +64,105 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   });
 
-  // === GALLERY LOADER ===
+  // === GALLERY LOADER (HOME) ===
+  // Carga 6 imágenes aleatorias desde assets/gallery.json
   if(!galleryGrid){
-    console.error('Gallery grid NOT found!');
-    return;
-  }
-
-  const BATCH = 6;
-  let nextIndex = 1;
-  let stopped = false;
-
-  function attachZoomHandler(img){
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', function(e){
-      e.stopPropagation();
-      const rect = img.getBoundingClientRect();
-      const clone = img.cloneNode(true);
-      clone.style.position = 'fixed';
-      clone.style.left = rect.left + 'px';
-      clone.style.top = rect.top + 'px';
-      clone.style.width = rect.width + 'px';
-      clone.style.height = rect.height + 'px';
-      clone.style.transition = 'all 360ms ease';
-      clone.style.zIndex = 9999;
-      clone.style.borderRadius = '12px';
-      clone.style.objectFit = 'cover';
-      document.body.appendChild(clone);
-
-      requestAnimationFrame(() => {
-        const zoomW = Math.min(window.innerWidth * 0.7, 800);
-        const zoomH = zoomW * (rect.height / rect.width);
-        clone.style.left = ((window.innerWidth - zoomW) / 2) + 'px';
-        clone.style.top = ((window.innerHeight - zoomH) / 2) + 'px';
-        clone.style.width = zoomW + 'px';
-        clone.style.height = zoomH + 'px';
-      });
-
-      function closeZoom(){
-        clone.style.transition = 'all 360ms ease';
-        clone.style.left = rect.left + 'px';
-        clone.style.top = rect.top + 'px';
-        clone.style.width = rect.width + 'px';
-        clone.style.height = rect.height + 'px';
-        setTimeout(() => clone.remove(), 360);
-      }
-
-      clone.addEventListener('click', closeZoom);
-      const escapeHandler = (e) => {
-        if(e.key === 'Escape'){
-          closeZoom();
-          document.removeEventListener('keydown', escapeHandler);
+    console.warn('Gallery grid NOT found — skipping gallery initialization');
+  } else {
+    (async function(){
+      try {
+        const res = await fetch('/assets/gallery.json');
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const all = Array.isArray(data.images) ? data.images : [];
+        if(all.length === 0){
+          console.warn('No images in gallery.json');
+          return;
         }
-      };
-      document.addEventListener('keydown', escapeHandler);
-    });
+
+        // pick 6 unique random images
+        const pick = [];
+        const used = new Set();
+        const count = Math.min(6, all.length);
+        while(pick.length < count){
+          const idx = Math.floor(Math.random() * all.length);
+          if(!used.has(idx)){
+            used.add(idx);
+            pick.push(all[idx]);
+          }
+        }
+
+        function attachZoomHandler(img){
+          img.style.cursor = 'zoom-in';
+          img.addEventListener('click', function(e){
+            e.stopPropagation();
+            const rect = img.getBoundingClientRect();
+            const clone = img.cloneNode(true);
+            clone.style.position = 'fixed';
+            clone.style.left = rect.left + 'px';
+            clone.style.top = rect.top + 'px';
+            clone.style.width = rect.width + 'px';
+            clone.style.height = rect.height + 'px';
+            clone.style.transition = 'all 360ms ease';
+            clone.style.zIndex = 9999;
+            clone.style.borderRadius = '12px';
+            clone.style.objectFit = 'cover';
+            document.body.appendChild(clone);
+
+            requestAnimationFrame(() => {
+              const zoomW = Math.min(window.innerWidth * 0.8, 900);
+              const zoomH = zoomW * (rect.height / rect.width);
+              clone.style.left = ((window.innerWidth - zoomW) / 2) + 'px';
+              clone.style.top = ((window.innerHeight - zoomH) / 2) + 'px';
+              clone.style.width = zoomW + 'px';
+              clone.style.height = zoomH + 'px';
+            });
+
+            function closeZoom(){
+              clone.style.transition = 'all 360ms ease';
+              clone.style.left = rect.left + 'px';
+              clone.style.top = rect.top + 'px';
+              clone.style.width = rect.width + 'px';
+              clone.style.height = rect.height + 'px';
+              setTimeout(() => clone.remove(), 360);
+            }
+
+            clone.addEventListener('click', closeZoom);
+            const escapeHandler = (e) => {
+              if(e.key === 'Escape'){
+                closeZoom();
+                document.removeEventListener('keydown', escapeHandler);
+              }
+            };
+            document.addEventListener('keydown', escapeHandler);
+          });
+        }
+
+        pick.forEach((p, i) => {
+          const img = document.createElement('img');
+          img.src = p;
+          img.alt = `Galería ${i+1}`;
+          img.loading = i === 0 ? 'eager' : 'lazy';
+          img.onload = () => attachZoomHandler(img);
+          galleryGrid.appendChild(img);
+        });
+
+        // Add link to full gallery
+        const linkWrap = document.createElement('div');
+        linkWrap.style.gridColumn = '1 / -1';
+        linkWrap.style.textAlign = 'center';
+        linkWrap.style.marginTop = '1rem';
+        const link = document.createElement('a');
+        link.href = '/galeria/';
+        link.className = 'btn primary';
+        link.textContent = 'Ver galería completa';
+        linkWrap.appendChild(link);
+        galleryGrid.after(linkWrap);
+      } catch(err){
+        console.error('Error loading home gallery:', err);
+      }
+    })();
   }
-
-  function loadBatch(start, count){
-    if(stopped) return;
-    console.log(`Loading images ${start}-${start + count - 1}`);
-
-    for(let i = start; i < start + count; i++){
-      const img = document.createElement('img');
-      img.alt = `Imagen ${i}`;
-      img.loading = (start === 1) ? 'eager' : 'lazy';
-
-      img.onload = function(){
-        console.log(`✓ Image ${i} loaded`);
-        attachZoomHandler(img);
-      };
-
-      img.onerror = function(){
-        console.log(`✗ Image ${i} missing - stop`);
-        stopped = true;
-        img.remove();
-      };
-
-      img.src = `assets/gallery${i}.jpg`;
-      galleryGrid.appendChild(img);
-    }
-  }
-
-  // Load first batch
-  loadBatch(nextIndex, BATCH);
-  nextIndex += BATCH;
-
-  // Sentinel for infinite scroll
-  const sentinel = document.createElement('div');
-  sentinel.style.height = '100px';
-  galleryGrid.after(sentinel);
-
-  const observer = new IntersectionObserver(entries => {
-    if(entries[0].isIntersecting && !stopped){
-      loadBatch(nextIndex, BATCH);
-      nextIndex += BATCH;
-    }
-  }, {rootMargin: '400px'});
-
-  observer.observe(sentinel);
 
   // === MODAL ===
   function closeModal(){
